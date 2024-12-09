@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Providers;
+
+use App\Events\CheckExpiredSalePrices;
+use App\Events\OrderCanceled;
+use App\Events\OrderShipped;
+use App\Listeners\CheckExpiredSalePricesListener;
+use App\Listeners\DeleteCart;
+use App\Listeners\InsertOrderItems;
+use App\Listeners\SendCancel;
+use App\Listeners\SendNotification;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
+
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event to listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $listen = [
+        Registered::class => [
+            SendEmailVerificationNotification::class,
+        ],
+        OrderShipped::class => [
+                SendNotification::class,
+                DeleteCart::class,
+                InsertOrderItems::class
+        ],
+        \App\Events\CheckExpiredSalePrices::class => [
+            \App\Listeners\HandleExpiredSales::class,
+        ],
+        OrderCanceled::class => [
+            SendCancel::class
+        ]
+    ];
+   
+
+    /**
+     * Register any events for your application.
+     */
+    public function boot(): void
+    {
+        //
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     */
+    public function shouldDiscoverEvents(): bool
+    {
+        return false;
+    }
+
+
+
+}
